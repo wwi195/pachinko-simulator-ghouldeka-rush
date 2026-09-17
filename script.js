@@ -473,8 +473,8 @@ function showRizeFlash() {
   }, RIZE_FLASH_MS);
 }
 
-const CHAIN_JUDGE_MS = 500;
-const CHAIN_REVEAL_MS = 900;
+const CHAIN_JUDGE_MS = 750;   // 上乗せ判定中の表示時間(元500msの1.5倍)
+const CHAIN_REVEAL_MS = 1350; // 大当たり(ボーナス演出)の表示時間(元900msの1.5倍)
 const CHAIN_FINAL_MS = 1400;
 
 // 当たり確定後の「3000確定→50%上乗せ判定→…」を自動で最後まで再生する。
