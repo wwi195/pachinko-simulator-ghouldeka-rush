@@ -81,9 +81,17 @@
           <span class="ctrl-label">演出モード（RUSH中の当選告知カスタム）</span>
           <select id="mode-select"></select>
         </div>
-        <div class="hold-legend" id="hold-legend">
-          <div class="hold-legend-title">リーチ中の予告色・信頼度（目安、月山絶叫モード）</div>
-          <div class="hold-legend-body" id="hold-legend-body"></div>
+        <div class="spec-panel" id="spec-panel">
+          <div class="spec-title">スペック</div>
+          <div class="spec-row">
+            <span class="spec-label">電サポ大当たり確率</span>
+            <span class="spec-value" id="spec-rush-prob"></span>
+          </div>
+          <div class="spec-chart-title">ラッシュの性能（大当たり1回あたりの獲得出玉）</div>
+          <div class="spec-chart-row">
+            <svg id="spec-pie" viewBox="0 0 120 120" class="spec-pie"></svg>
+            <div class="spec-legend" id="spec-legend"></div>
+          </div>
         </div>
         <button type="button" class="btn-start" id="start-btn">スタート</button>
       </div>

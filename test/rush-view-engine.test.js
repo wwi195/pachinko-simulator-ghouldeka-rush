@@ -87,3 +87,29 @@ test('rollTokigekiSenbare: rng<0.2でtrue', () => {
   assert.equal(engine.rollTokigekiSenbare(() => 0.1), true);
   assert.equal(engine.rollTokigekiSenbare(() => 0.5), false);
 });
+
+test('confidenceColorOccurrenceRate: 全色の合計は1回転あたり100%になる', () => {
+  const total = engine.CONFIDENCE_COLORS.reduce((s, c) => s + engine.confidenceColorOccurrenceRate(c), 0);
+  assert.ok(Math.abs(total - 1) < 1e-9);
+});
+
+test('RUSH_CHAIN_TIER_DISTRIBUTION: 3000(50%)/6000(25%)/9000(12.5%)/12000(6.25%)/15000以上(6.25%)、確率合計は100%', () => {
+  const dist = engine.RUSH_CHAIN_TIER_DISTRIBUTION;
+  assert.equal(dist.length, engine.RUSH_CHAIN_TIER_MAX + 1);
+  assert.ok(Math.abs(dist[0].probability - 0.5) < 1e-9);
+  assert.equal(dist[0].nominalBalls, 3000);
+  assert.ok(Math.abs(dist[1].probability - 0.25) < 1e-9);
+  assert.equal(dist[1].nominalBalls, 6000);
+  assert.ok(Math.abs(dist[3].probability - 0.0625) < 1e-9);
+  assert.equal(dist[3].nominalBalls, 12000);
+  assert.equal(dist[4].isTail, true);
+  assert.ok(Math.abs(dist[4].probability - 0.0625) < 1e-9);
+  assert.equal(dist[4].nominalBalls, 15000);
+  const total = dist.reduce((s, t) => s + t.probability, 0);
+  assert.ok(Math.abs(total - 1) < 1e-9);
+});
+
+test('averageChainNominalBalls/averageChainActualBalls: 期待値は6000/5600(平均2連続)', () => {
+  assert.ok(Math.abs(engine.averageChainNominalBalls() - 6000) < 1e-9);
+  assert.ok(Math.abs(engine.averageChainActualBalls() - 5600) < 1e-9);
+});

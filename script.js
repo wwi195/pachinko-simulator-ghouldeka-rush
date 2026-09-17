@@ -19,8 +19,9 @@ let modeSelectEl, startBtnEl,
     tsukiyamaBtnRowEl, tsukiyamaBtnEl,
     rushStatusRowEl, esupRemainingValueEl, chainCountValueEl, rushBallsValueEl,
     rushMoneyRowEl, rushToushiValueEl, rushProfitValueEl,
-    modeSwitchRowEl, rushModeBtnsEl, holdLegendBodyEl,
+    modeSwitchRowEl, rushModeBtnsEl,
     rushScreenEl, pocketBallEl, tameruBtnEl,
+    specRushProbEl, specPieEl, specLegendEl,
     introTabBtnEl, introTextEl, historyListEl;
 
 function cacheDomRefs() {
@@ -47,22 +48,15 @@ function cacheDomRefs() {
   rushProfitValueEl = document.getElementById('rush-profit-value');
   modeSwitchRowEl = document.getElementById('mode-switch-row');
   rushModeBtnsEl = document.getElementById('rush-mode-btns');
-  holdLegendBodyEl = document.getElementById('hold-legend-body');
   rushScreenEl = document.getElementById('rush-screen');
   pocketBallEl = document.getElementById('pocket-ball');
   tameruBtnEl = document.getElementById('tameru-btn');
+  specRushProbEl = document.getElementById('spec-rush-prob');
+  specPieEl = document.getElementById('spec-pie');
+  specLegendEl = document.getElementById('spec-legend');
   introTabBtnEl = document.getElementById('intro-tab-btn');
   introTextEl = document.getElementById('intro-text');
   historyListEl = document.getElementById('history-list');
-}
-
-const CONFIDENCE_COLOR_LABELS = { none: '無色', flash: '点滅', blue: '青', green: '緑', red: '赤', rainbow: '虹' };
-
-function formatConfidenceColorRate(color) {
-  const rate = confidenceColorHitRate(color);
-  if (rate <= 0) return 'ほぼ期待できない';
-  if (rate >= 1) return '当選濃厚(100%)';
-  return `約${Math.round(rate * 100)}%`;
 }
 
 function populateSelects() {
@@ -72,11 +66,64 @@ function populateSelects() {
   rushModeBtnsEl.innerHTML = RUSH_MODE_OPTIONS.map(
     (m) => `<button type="button" class="speed-btn" data-mode="${m.id}">${m.label}</button>`
   ).join('');
-  holdLegendBodyEl.innerHTML = CONFIDENCE_COLORS.map((color) => `
-    <div class="hold-legend-row">
-      <span class="color-swatch color-${color}"></span>
-      <span class="hold-legend-label">${CONFIDENCE_COLOR_LABELS[color]}</span>
-      <span class="hold-legend-value">${formatConfidenceColorRate(color)}</span>
+}
+
+// ---- 開始画面のスペックパネル：大当たり確率＋ラッシュの性能(円グラフ) ----
+// 階層(3000〜15000以上)は「連続して上乗せに成功した回数」という順序のある
+// 区分(ordinal)なので、単一色相(金)の明度を段階的に下げて順序を表現する
+// (datavizスキルのordinalルールに従い、5段階でvalidate_palette.js --ordinal
+// を通した配色)。
+const CHAIN_TIER_COLORS = ['#fbe6a8', '#f0c040', '#c9962c', '#9c6f1f', '#6e4a12'];
+
+function polarToCartesian(cx, cy, r, angleDeg) {
+  const rad = (angleDeg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+function donutSlicePath(cx, cy, rOuter, rInner, startAngle, endAngle) {
+  const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+  const p1 = polarToCartesian(cx, cy, rOuter, endAngle);
+  const p2 = polarToCartesian(cx, cy, rOuter, startAngle);
+  const p3 = polarToCartesian(cx, cy, rInner, startAngle);
+  const p4 = polarToCartesian(cx, cy, rInner, endAngle);
+  return [
+    'M', p1.x, p1.y,
+    'A', rOuter, rOuter, 0, largeArc, 0, p2.x, p2.y,
+    'L', p3.x, p3.y,
+    'A', rInner, rInner, 0, largeArc, 1, p4.x, p4.y,
+    'Z',
+  ].join(' ');
+}
+
+function tierLabel(tier) {
+  return tier.isTail ? `${tier.nominalBalls.toLocaleString()}以上` : `${tier.nominalBalls.toLocaleString()}`;
+}
+
+function renderSpecPanel() {
+  specRushProbEl.textContent = '1/7.7';
+
+  const cx = 60, cy = 60, rOuter = 54, rInner = 30;
+  let angle = 0;
+  const slicesHtml = RUSH_CHAIN_TIER_DISTRIBUTION.map((tier, i) => {
+    const sweep = tier.probability * 360;
+    const path = donutSlicePath(cx, cy, rOuter, rInner, angle, angle + sweep);
+    angle += sweep;
+    return `<path class="spec-pie-slice" d="${path}" fill="${CHAIN_TIER_COLORS[i]}"></path>`;
+  }).join('');
+
+  const avgNominal = Math.round(averageChainNominalBalls());
+  const centerHtml = `
+    <text x="${cx}" y="${cy - 4}" class="spec-pie-center-value">${avgNominal.toLocaleString()}</text>
+    <text x="${cx}" y="${cy + 9}" class="spec-pie-center-label">平均獲得出玉</text>
+  `;
+
+  specPieEl.innerHTML = slicesHtml + centerHtml;
+
+  specLegendEl.innerHTML = RUSH_CHAIN_TIER_DISTRIBUTION.map((tier, i) => `
+    <div class="spec-legend-row">
+      <span class="spec-legend-swatch" style="background:${CHAIN_TIER_COLORS[i]}"></span>
+      <span class="spec-legend-label">${tierLabel(tier)}（実質${tier.actualBalls.toLocaleString()}発）</span>
+      <span class="spec-legend-value">${Math.round(tier.probability * 100)}%</span>
     </div>
   `).join('');
 }
@@ -629,4 +676,5 @@ document.addEventListener('DOMContentLoaded', () => {
   bindEvents();
   renderStats();
   renderHistory();
+  renderSpecPanel();
 });

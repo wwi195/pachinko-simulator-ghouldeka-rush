@@ -323,43 +323,65 @@ body {
 
 .ctrl-label { font-size: 12px; color: #aaa; }
 
-.hold-legend {
+/* ========== スペックパネル(開始画面) ==========
+   大当たり確率と、ラッシュの性能(大当たり1回あたりの獲得出玉分布)を
+   円グラフで見せる。分布は3000/6000/9000/12000/15000以上の5階層
+   (連続して上乗せに成功した回数の幾何分布)で、階層が上がるほど
+   レアなので単色(金)の明度を段階的に下げて順序を表現する。 */
+.spec-panel {
   width: 100%;
   background: #141414;
   border: 1px solid #333;
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 12px 14px;
 }
-.hold-legend-title { font-size: 11px; color: #888; margin-bottom: 6px; }
-.hold-legend-row {
+.spec-title { font-size: 13px; font-weight: bold; color: #f0c040; margin-bottom: 8px; }
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0 10px;
+  border-bottom: 1px solid #262626;
+  margin-bottom: 10px;
+}
+.spec-label { font-size: 12px; color: #999; }
+.spec-value { font-size: 16px; font-weight: bold; color: #fff; }
+.spec-chart-title { font-size: 11px; color: #888; margin-bottom: 8px; }
+
+.spec-chart-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 3px 0;
+  gap: 14px;
 }
-.color-swatch {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
+.spec-pie {
+  width: 112px;
+  height: 112px;
   flex-shrink: 0;
-  border: 1px solid rgba(255,255,255,0.3);
 }
-.color-swatch.color-none    { background: #444; }
-.color-swatch.color-flash   { background: #999; animation: holdFlash 0.8s ease infinite; }
-.color-swatch.color-blue    { background: #5f93d1; box-shadow: 0 0 6px rgba(66,150,255,0.6); }
-.color-swatch.color-green   { background: #4fbb78; box-shadow: 0 0 6px rgba(66,220,150,0.6); }
-.color-swatch.color-red     { background: #cc3333; box-shadow: 0 0 6px rgba(255,80,80,0.6); }
-.color-swatch.color-rainbow {
-  background: linear-gradient(90deg, #ff3b3b, #ff9d3b, #ffe93b, #3bff6a, #3bcfff, #6a3bff, #ff3bcf, #ff3b3b);
-  background-size: 400% 100%;
-  animation: rush-rainbow 2s linear infinite;
+.spec-pie-slice { stroke: #141414; stroke-width: 2; }
+.spec-pie-center-value { font-size: 13px; font-weight: bold; fill: #fff; text-anchor: middle; }
+.spec-pie-center-label { font-size: 6.5px; fill: #999; text-anchor: middle; }
+
+.spec-legend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
 }
-@keyframes holdFlash {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.4; }
+.spec-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
-.hold-legend-label { font-size: 12px; color: #ccc; width: 40px; }
-.hold-legend-value { font-size: 12px; color: #999; margin-left: auto; }
+.spec-legend-swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.spec-legend-label { font-size: 11px; color: #ccc; white-space: nowrap; }
+.spec-legend-value { font-size: 11px; color: #999; margin-left: auto; white-space: nowrap; }
 
 select {
   width: 100%;

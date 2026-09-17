@@ -207,6 +207,59 @@ function confidenceColorHitRate(color) {
   return (pHit * wHit) / pColor;
 }
 
+// この色が1回転(貯めるボタン1回)あたりに出現する確率。
+function confidenceColorOccurrenceRate(color) {
+  const pHit = _logic.P_RUSH;
+  const pMiss = 1 - pHit;
+  const wHit  = CONFIDENCE_COLOR_WEIGHTS.hit[color] / 100;
+  const wMiss = CONFIDENCE_COLOR_WEIGHTS.miss[color] / 100;
+  return pHit * wHit + pMiss * wMiss;
+}
+
+// ---- ラッシュの性能：大当たり1回あたりの獲得出玉の分布 ----
+// addChainCount(3000を何回積んだか)は幾何分布(P_RUSH_ADD_CHANCEで継続)に従う。
+// P(addChainCount === k) = P_RUSH_ADD_CHANCE^(k-1) × (1 - P_RUSH_ADD_CHANCE)。
+// 開始画面のスペック表示(円グラフ)用に、上位RUSH_CHAIN_TIER_MAX段階までを個別の
+// 階層として、残りの裾(それ以上連続した分)を1つにまとめて返す。
+const RUSH_CHAIN_TIER_MAX = 4;
+
+function buildRushChainTierDistribution() {
+  const p = _logic.P_RUSH_ADD_CHANCE;
+  const tiers = [];
+  let cumulative = 0;
+  for (let k = 1; k <= RUSH_CHAIN_TIER_MAX; k++) {
+    const probability = Math.pow(p, k - 1) * (1 - p);
+    cumulative += probability;
+    tiers.push({
+      count: k,
+      nominalBalls: k * _logic.RUSH_HIT_NOMINAL_BALLS,
+      actualBalls:  k * _logic.RUSH_HIT_ACTUAL_BALLS,
+      probability,
+      isTail: false,
+    });
+  }
+  const tailCount = RUSH_CHAIN_TIER_MAX + 1;
+  tiers.push({
+    count: tailCount,
+    nominalBalls: tailCount * _logic.RUSH_HIT_NOMINAL_BALLS,
+    actualBalls:  tailCount * _logic.RUSH_HIT_ACTUAL_BALLS,
+    probability: 1 - cumulative,
+    isTail: true,
+  });
+  return tiers;
+}
+
+const RUSH_CHAIN_TIER_DISTRIBUTION = buildRushChainTierDistribution();
+
+// 大当たり1回あたりの平均獲得出玉(幾何分布の期待値 1/(1-P_RUSH_ADD_CHANCE)回ぶん)。
+function averageChainNominalBalls() {
+  return (1 / (1 - _logic.P_RUSH_ADD_CHANCE)) * _logic.RUSH_HIT_NOMINAL_BALLS;
+}
+
+function averageChainActualBalls() {
+  return (1 / (1 - _logic.P_RUSH_ADD_CHANCE)) * _logic.RUSH_HIT_ACTUAL_BALLS;
+}
+
 // ---- 突撃モード：手落下の発生箇所 ----
 // 当たりの変動シーケンス中、5箇所を順にチェックし、最初に20%を引いた箇所で
 // 1回だけカットインする(以降は判定しない)。
@@ -241,6 +294,11 @@ if (typeof module !== 'undefined' && module.exports) {
     CONFIDENCE_COLOR_WEIGHTS,
     rollConfidenceColor,
     confidenceColorHitRate,
+    confidenceColorOccurrenceRate,
+    RUSH_CHAIN_TIER_MAX,
+    RUSH_CHAIN_TIER_DISTRIBUTION,
+    averageChainNominalBalls,
+    averageChainActualBalls,
     TOKIGEKI_SENBARE_CHECKPOINTS,
     TOKIGEKI_SENBARE_CHANCE,
     rollTokigekiSenbare,
