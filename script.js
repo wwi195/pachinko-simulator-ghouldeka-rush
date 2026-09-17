@@ -480,7 +480,7 @@ function showRizeFlash() {
   }, RIZE_FLASH_MS);
 }
 
-const CHAIN_JUDGE_MS = 750;   // 上乗せ判定中の表示時間(元500msの1.5倍)
+const CHAIN_JUDGE_MS = 1125;  // 上乗せ判定中の表示時間(元500ms→750ms→さらに1.5倍)
 const CHAIN_REVEAL_MS = 1350; // 大当たり(ボーナス演出)の表示時間(元900msの1.5倍)
 const CHAIN_FINAL_MS = 1400;
 
