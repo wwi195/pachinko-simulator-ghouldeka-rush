@@ -70,6 +70,14 @@ body {
 .lcd-status-chain { font-size: 13px; font-weight: bold; color: #ff9900; }
 .lcd-status-balls { font-size: 13px; font-weight: bold; color: #f0c040; }
 
+/* 電サポ残り回数。3桁リールのすぐ上に表示する。 */
+.lcd-remaining {
+  font-size: 15px;
+  font-weight: bold;
+  color: #ffcc55;
+  text-shadow: 0 0 8px rgba(255, 204, 85, 0.5);
+}
+
 /* ========== 液晶画面(3桁)：変動のメイン演出 ==========
    「貯める」を押すたびに3桁が回転する。当たり・ガセリーチなら2桁が先に
    止まってリーチ(残り1桁が回り続ける緊張の間、約3秒)を経て3桁が揃う。

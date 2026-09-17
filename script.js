@@ -15,7 +15,7 @@ const HISTORY_MAX_ITEMS = 50;
 let modeSelectEl, startBtnEl,
     overlayEl, overlayBoxEl, rizeFlashOverlayEl, startControlsEl,
     totalPlaysValueEl, totalProfitValueEl, maxChainValueEl, totalBallsValueEl,
-    lcdScreenEl, lcdDigitEls, lcdStatusChainEl, lcdStatusBallsEl,
+    lcdScreenEl, lcdDigitEls, lcdStatusChainEl, lcdStatusBallsEl, lcdRemainingEl,
     tsukiyamaBtnRowEl, tsukiyamaBtnEl,
     rushStatusRowEl, esupRemainingValueEl, chainCountValueEl, rushBallsValueEl,
     rushMoneyRowEl, rushToushiValueEl, rushProfitValueEl,
@@ -39,6 +39,7 @@ function cacheDomRefs() {
   lcdDigitEls = Array.from(document.querySelectorAll('.lcd-digit'));
   lcdStatusChainEl = document.getElementById('lcd-status-chain');
   lcdStatusBallsEl = document.getElementById('lcd-status-balls');
+  lcdRemainingEl = document.getElementById('lcd-remaining');
   tsukiyamaBtnRowEl = document.getElementById('tsukiyama-btn-row');
   tsukiyamaBtnEl = document.getElementById('tsukiyama-btn');
   rushStatusRowEl = document.getElementById('rush-status-row');
@@ -294,6 +295,7 @@ function renderRushStatus() {
   rushBallsValueEl.textContent = game.rush.actualBalls.toLocaleString();
   lcdStatusChainEl.textContent = `${currentChainDisplay()}連チャン中`;
   lcdStatusBallsEl.textContent = `獲得出玉 ${game.rush.nominalBalls.toLocaleString()}`;
+  lcdRemainingEl.textContent = `残り${game.rush.remaining}回`;
 }
 
 function renderRushMoney() {
@@ -420,32 +422,37 @@ function handleTameru() {
   }
 
   function resolveSpin() {
-    vanishLcdDigits(() => {
-      game.rush = spinResult.rushState;
-      if (isHit) {
+    if (isHit) {
+      vanishLcdDigits(() => {
+        game.rush = spinResult.rushState;
         playUenoseChain(spinResult.addChainCount, () => {
           renderRushStatus();
           renderRushMoney();
           backToIdle();
         });
-      } else {
-        renderRushStatus();
-        renderRushMoney();
-        if (spinResult.outcome === 'rush_end') {
-          showMissResult(true, finishRushNow);
-        } else {
-          showMissResult(false, backToIdle);
-        }
-      }
-    });
+      });
+      return;
+    }
+
+    // 外れはオーバーレイを出さず、揃わなかった数字をそのまま液晶に表示し
+    // 続ける(次の「貯める」を押した瞬間に上書きされる)。
+    game.rush = spinResult.rushState;
+    renderRushStatus();
+    renderRushMoney();
+    if (spinResult.outcome === 'rush_end') {
+      showRushEndResult(finishRushNow);
+    } else {
+      game.pendingTimeoutId = setTimeout(() => backToIdle(true), MISS_RESULT_MS);
+    }
   }
 
   runPocketIn();
 }
 
-function backToIdle() {
+// keepLcd=trueのときは液晶をリセットしない(外れの数字をそのまま残す)。
+function backToIdle(keepLcd) {
   hideOverlay();
-  resetLcdScreen();
+  if (!keepLcd) resetLcdScreen();
   game.spinning = false;
   tameruBtnEl.disabled = false;
 }
@@ -526,15 +533,14 @@ function showChainFinal(count) {
   `));
 }
 
-function showMissResult(isRushEnd, onDone) {
+function showRushEndResult(onDone) {
   showOverlay(popupHtml(`
-    <div class="result-main lose" style="${isRushEnd ? 'font-size:26px;' : ''}">${isRushEnd ? '電サポ終了…' : 'はずれ'}</div>
-    ${!isRushEnd ? `<div class="result-sub">電サポ残り ${game.rush.remaining}回</div>` : ''}
+    <div class="result-main lose" style="font-size:26px;">電サポ終了…</div>
   `));
   game.pendingTimeoutId = setTimeout(() => {
     hideOverlay();
     onDone();
-  }, isRushEnd ? RUSH_END_RESULT_MS : MISS_RESULT_MS);
+  }, RUSH_END_RESULT_MS);
 }
 
 // ---- 月山絶叫モード：予告ボタン ----
