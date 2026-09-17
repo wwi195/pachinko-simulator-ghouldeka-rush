@@ -15,7 +15,7 @@ const HISTORY_MAX_ITEMS = 50;
 let modeSelectEl, startBtnEl,
     overlayEl, overlayBoxEl, rizeFlashOverlayEl, startControlsEl,
     totalPlaysValueEl, totalProfitValueEl, maxChainValueEl, totalBallsValueEl,
-    lcdScreenEl, lcdDigitEls,
+    lcdScreenEl, lcdDigitEls, lcdStatusChainEl, lcdStatusBallsEl,
     tsukiyamaBtnRowEl, tsukiyamaBtnEl,
     rushStatusRowEl, esupRemainingValueEl, chainCountValueEl, rushBallsValueEl,
     rushMoneyRowEl, rushToushiValueEl, rushProfitValueEl,
@@ -37,6 +37,8 @@ function cacheDomRefs() {
   totalBallsValueEl = document.getElementById('total-balls-value');
   lcdScreenEl = document.getElementById('lcd-screen');
   lcdDigitEls = Array.from(document.querySelectorAll('.lcd-digit'));
+  lcdStatusChainEl = document.getElementById('lcd-status-chain');
+  lcdStatusBallsEl = document.getElementById('lcd-status-balls');
   tsukiyamaBtnRowEl = document.getElementById('tsukiyama-btn-row');
   tsukiyamaBtnEl = document.getElementById('tsukiyama-btn');
   rushStatusRowEl = document.getElementById('rush-status-row');
@@ -279,10 +281,19 @@ function enterRush() {
   tameruBtnEl.disabled = false;
 }
 
+// 連チャン数は初当たり(RUSH突入)を1連チャンと数える。game.rush.chainCountは
+// RUSH中の当たり回数(0始まり)なので、表示上は+1する(RUSH中に1回当たりを
+// 引くと2連チャン中になる)。
+function currentChainDisplay() {
+  return game.rush.chainCount + 1;
+}
+
 function renderRushStatus() {
   esupRemainingValueEl.textContent = game.rush.remaining;
-  chainCountValueEl.textContent = game.rush.chainCount;
+  chainCountValueEl.textContent = currentChainDisplay();
   rushBallsValueEl.textContent = game.rush.actualBalls.toLocaleString();
+  lcdStatusChainEl.textContent = `${currentChainDisplay()}連チャン中`;
+  lcdStatusBallsEl.textContent = `獲得出玉 ${game.rush.nominalBalls.toLocaleString()}`;
 }
 
 function renderRushMoney() {
@@ -619,7 +630,7 @@ function vanishLcdDigits(onDone) {
 // ---- RUSH終了 ----
 
 function finishRushNow() {
-  const chain = game.rush.chainCount;
+  const chain = currentChainDisplay();
   const balls = game.rush.actualBalls;
   const profit = ballsToYen(balls) - game.investment.toushi;
 

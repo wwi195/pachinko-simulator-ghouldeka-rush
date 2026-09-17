@@ -1,4 +1,4 @@
-# グール超デカ RUSH演出特化版 設計書
+# e東京喰種 超デカ超一撃ver. RUSH演出特化版 設計書
 
 ## コンセプト
 `pachinko-simulator-ghouldeka`（電サポ5回リセット＋上乗せ方式）をベースに、`pachinko-simulator-ghoul-rush`と同じ「通常時はスキップし、RUSH中の演出だけを繰り返し楽しむ」フォーマットを適用する。ghouldekaには保留キューの概念がないため、専用の新方式（貯める→ポケット投入→変動）を採用する。

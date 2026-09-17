@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>パチンコシミュレーター（グール超デカ RUSH演出ver）</title>
+  <title>パチンコシミュレーター（e東京喰種 超デカ超一撃ver. RUSH演出ver）</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="app">
 
-    <div id="title-bar">パチンコ　eグール超デカ RUSH演出ver</div>
+    <div id="title-bar">パチンコ　e東京喰種 超デカ超一撃ver. RUSH演出ver</div>
 
     <div id="header">
       <div class="hrow hrow1">
@@ -29,12 +29,6 @@
           <span class="stat-label">総獲得出玉</span>
           <span class="stat-value" id="total-balls-value">0</span>
         </div>
-      </div>
-
-      <!-- 月山絶叫モード専用：リーチ中(当たり・ガセリーチ問わず)だけ表示され、
-           押すとその場で色が光って先に信頼度を示す予告ボタン。 -->
-      <div class="hrow hrow-tsukiyama-btn" id="tsukiyama-btn-row" hidden>
-        <button type="button" class="tsukiyama-btn" id="tsukiyama-btn">絶叫ボタン</button>
       </div>
 
       <div class="hrow hrow-rush-status" id="rush-status-row" hidden>
@@ -72,7 +66,7 @@
       <div id="start-controls">
         <button type="button" class="intro-tab-btn" id="intro-tab-btn">説明を見る</button>
         <div class="intro-text" id="intro-text" hidden>
-          <p>このゲームは、eグール超デカの「RUSH中」だけを楽しむシミュレーターです。</p>
+          <p>このゲームは、e東京喰種 超デカ超一撃ver.の「RUSH中」だけを楽しむシミュレーターです。</p>
           <p>大当たりまでは、ワンクリックで到達！</p>
           <p>RUSHに入ったら、「貯める」ボタンを押すたびに1回ずつ電サポ抽選が始まります。</p>
           <p>当たれば3000ボーナス確定、そこからは50%を引き続ける限り無限に上乗せ！</p>
@@ -97,6 +91,10 @@
       </div>
 
       <div id="rush-screen" hidden>
+        <div class="lcd-status-row" id="lcd-status-row">
+          <span class="lcd-status-chain" id="lcd-status-chain">1連チャン中</span>
+          <span class="lcd-status-balls" id="lcd-status-balls">獲得出玉 0</span>
+        </div>
         <div class="lcd-screen" id="lcd-screen">
           <div class="lcd-digit" id="lcd-digit-0">-</div>
           <div class="lcd-digit" id="lcd-digit-1">-</div>
@@ -105,6 +103,12 @@
         <div class="pocket-area">
           <div class="pocket-ball" id="pocket-ball" hidden></div>
           <div class="pocket-hole"></div>
+        </div>
+        <!-- 月山絶叫モード専用：リーチ中(当たり・ガセリーチ問わず)だけ表示され、
+             押すとその場で色が光って先に信頼度を示す予告ボタン。貯めるボタンの
+             真上に出す。 -->
+        <div class="hrow-tsukiyama-btn" id="tsukiyama-btn-row" hidden>
+          <button type="button" class="tsukiyama-btn" id="tsukiyama-btn">絶叫ボタン</button>
         </div>
         <button type="button" class="btn-start btn-tameru" id="tameru-btn">貯める</button>
         <p class="prob-hint">電サポ確率 1/7.7</p>

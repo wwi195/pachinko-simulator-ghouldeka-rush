@@ -1,4 +1,4 @@
-# パチンコシミュレーター（グール超デカ・RUSH演出ver）
+# パチンコシミュレーター（e東京喰種 超デカ超一撃ver.・RUSH演出ver）
 
 `pachinko-simulator-ghouldeka`（電サポ5回リセット＋上乗せ方式）をベースに、
 `pachinko-simulator-ghoul-rush`と同じ「通常時はワンクリックで飛ばし、RUSH中の

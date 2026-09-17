@@ -55,6 +55,21 @@ body {
 .stat-value.green { color: #44cc88; }
 .stat-value.red   { color: #cc6666; }
 
+/* 液晶(数字)の真上に出す、現在の連チャン数・獲得出玉(表示ベース)。
+   連チャン数は初当たり(RUSH突入)を1連チャンと数える(ヘッダーの連チャン
+   欄と揃えるため、どちらもgame.rush.chainCount+1を表示する)。獲得出玉は
+   表示玉数(nominalBalls、初回の7500を含む)で、実質発数のヘッダー側とは
+   別の数値として並行して見せる。 */
+.lcd-status-row {
+  width: 100%;
+  max-width: 260px;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+.lcd-status-chain { font-size: 13px; font-weight: bold; color: #ff9900; }
+.lcd-status-balls { font-size: 13px; font-weight: bold; color: #f0c040; }
+
 /* ========== 液晶画面(3桁)：変動のメイン演出 ==========
    「貯める」を押すたびに3桁が回転する。当たり・ガセリーチなら2桁が先に
    止まってリーチ(残り1桁が回り続ける緊張の間、約3秒)を経て3桁が揃う。
@@ -204,8 +219,8 @@ body {
 }
 
 .hrow-tsukiyama-btn {
-  justify-content: center;
-  padding: 6px 12px;
+  width: 100%;
+  max-width: 260px;
 }
 
 .tsukiyama-btn {
