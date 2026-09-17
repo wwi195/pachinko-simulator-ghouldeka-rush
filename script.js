@@ -486,25 +486,28 @@ const CHAIN_FINAL_MS = 1400;
 
 // 当たり確定後の「3000確定→50%上乗せ判定→…」を自動で最後まで再生する。
 // addChainCountは既にlogic.jsで確定済み(乱数の引き直しはしない)。
+// 抽選である以上、判定中の後には必ず結果(継続 or 終了)が続く。ベースの
+// 3000確定を含め、ボーナスを見せたら毎回「上乗せ判定中」を挟んでから
+// 結果を出す(成功なら次のボーナスへ、失敗ならそこで終了)。
 function playUenoseChain(addChainCount, onDone) {
   let shown = 1;
   showChainStep(shown, false);
-  game.pendingTimeoutId = setTimeout(stepNext, CHAIN_REVEAL_MS);
+  game.pendingTimeoutId = setTimeout(runJudge, CHAIN_REVEAL_MS);
 
-  function stepNext() {
-    if (shown >= addChainCount) {
-      showChainFinal(shown);
-      game.pendingTimeoutId = setTimeout(() => {
-        hideOverlay();
-        onDone();
-      }, CHAIN_FINAL_MS);
-      return;
-    }
+  function runJudge() {
     showChainJudge();
     game.pendingTimeoutId = setTimeout(() => {
-      shown++;
-      showChainStep(shown, true);
-      game.pendingTimeoutId = setTimeout(stepNext, CHAIN_REVEAL_MS);
+      if (shown < addChainCount) {
+        shown++;
+        showChainStep(shown, true);
+        game.pendingTimeoutId = setTimeout(runJudge, CHAIN_REVEAL_MS);
+      } else {
+        showChainFinal(shown);
+        game.pendingTimeoutId = setTimeout(() => {
+          hideOverlay();
+          onDone();
+        }, CHAIN_FINAL_MS);
+      }
     }, CHAIN_JUDGE_MS);
   }
 }
@@ -528,8 +531,7 @@ function showChainJudge() {
 function showChainFinal(count) {
   const nominal = count * 3000;
   showOverlay(popupHtml(`
-    <div class="result-main lose">上乗せ失敗…</div>
-    <div class="chain-label">${nominal.toLocaleString()}ボーナスで確定</div>
+    <div class="chain-label">${nominal.toLocaleString()}ボーナスで終了</div>
   `));
 }
 
