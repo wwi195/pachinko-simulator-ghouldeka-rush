@@ -23,6 +23,7 @@ npm test
 ## 設計書
 
 - `docs/superpowers/specs/2026-09-17-ghouldeka-rush-format-design.md`
+- `docs/blog.md`（開発の振り返りブログ記事）
 
 ## スコープ外（今回未実施）
 
