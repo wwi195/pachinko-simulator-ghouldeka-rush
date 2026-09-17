@@ -380,8 +380,8 @@ body {
   border-radius: 3px;
   flex-shrink: 0;
 }
-.spec-legend-label { font-size: 11px; color: #ccc; white-space: nowrap; }
-.spec-legend-value { font-size: 11px; color: #999; margin-left: auto; white-space: nowrap; }
+.spec-legend-label { font-size: 11px; color: #ccc; flex: 1; min-width: 0; }
+.spec-legend-value { font-size: 11px; color: #999; flex-shrink: 0; white-space: nowrap; }
 
 select {
   width: 100%;
