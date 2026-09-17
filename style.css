@@ -72,7 +72,7 @@ body {
 
 /* 電サポ残り回数。3桁リールのすぐ上に表示する。 */
 .lcd-remaining {
-  font-size: 15px;
+  font-size: 30px;
   font-weight: bold;
   color: #ffcc55;
   text-shadow: 0 0 8px rgba(255, 204, 85, 0.5);
