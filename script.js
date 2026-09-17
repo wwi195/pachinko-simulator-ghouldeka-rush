@@ -480,23 +480,22 @@ function showRizeFlash() {
   }, RIZE_FLASH_MS);
 }
 
-const CHAIN_JUDGE_MS = 1125;  // 上乗せ判定中の表示時間(元500ms→750ms→さらに1.5倍)
 const CHAIN_REVEAL_MS = 1350; // 大当たり(ボーナス演出)の表示時間(元900msの1.5倍)
 const CHAIN_FINAL_MS = 1400;
 
-// 当たり確定後の「3000確定→50%上乗せ判定→…」を自動で最後まで再生する。
+// 当たり確定後の「3000確定→50%上乗せ判定→…」を再生する。
 // addChainCountは既にlogic.jsで確定済み(乱数の引き直しはしない)。
 // 抽選である以上、判定中の後には必ず結果(継続 or 終了)が続く。ベースの
 // 3000確定を含め、ボーナスを見せたら毎回「上乗せ判定中」を挟んでから
-// 結果を出す(成功なら次のボーナスへ、失敗ならそこで終了)。
+// 結果を出す(成功なら次のボーナスへ、失敗ならそこで終了)。判定中→結果の
+// 開示だけは自動進行にせず、「上乗せジャッジ」ボタンを押した瞬間に行う。
 function playUenoseChain(addChainCount, onDone) {
   let shown = 1;
   showChainStep(shown, false);
   game.pendingTimeoutId = setTimeout(runJudge, CHAIN_REVEAL_MS);
 
   function runJudge() {
-    showChainJudge();
-    game.pendingTimeoutId = setTimeout(() => {
+    showChainJudge(() => {
       if (shown < addChainCount) {
         shown++;
         showChainStep(shown, true);
@@ -508,7 +507,7 @@ function playUenoseChain(addChainCount, onDone) {
           onDone();
         }, CHAIN_FINAL_MS);
       }
-    }, CHAIN_JUDGE_MS);
+    });
   }
 }
 
@@ -521,11 +520,13 @@ function showChainStep(count, isAdd) {
   `));
 }
 
-function showChainJudge() {
+function showChainJudge(onReveal) {
   showOverlay(popupHtml(`
     <div class="result-main charge">上乗せ判定中…</div>
     <div class="result-sub">継続率50%</div>
+    <button type="button" class="btn-action" id="chain-judge-btn">▶ 上乗せジャッジ</button>
   `));
+  document.getElementById('chain-judge-btn').addEventListener('click', onReveal, { once: true });
 }
 
 function showChainFinal(count) {
