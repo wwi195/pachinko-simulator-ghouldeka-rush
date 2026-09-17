@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>パチンコシミュレーター（グール超デカ RUSH演出ver）</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+
+    <div id="title-bar">パチンコ　eグール超デカ RUSH演出ver</div>
+
+    <div id="header">
+      <div class="hrow hrow1">
+        <div class="stat-block">
+          <span class="stat-label">プレイ回数</span>
+          <span class="stat-value" id="total-plays-value">0</span>
+        </div>
+        <div class="stat-block">
+          <span class="stat-label">累計収支</span>
+          <span class="stat-value gold" id="total-profit-value">+0</span>
+        </div>
+        <div class="stat-block">
+          <span class="stat-label">最高連チャン</span>
+          <span class="stat-value" id="max-chain-value">0連</span>
+        </div>
+        <div class="stat-block">
+          <span class="stat-label">総獲得出玉</span>
+          <span class="stat-value" id="total-balls-value">0</span>
+        </div>
+      </div>
+
+      <!-- 月山絶叫モード専用：リーチ中(当たり・ガセリーチ問わず)だけ表示され、
+           押すとその場で色が光って先に信頼度を示す予告ボタン。 -->
+      <div class="hrow hrow-tsukiyama-btn" id="tsukiyama-btn-row" hidden>
+        <button type="button" class="tsukiyama-btn" id="tsukiyama-btn">絶叫ボタン</button>
+      </div>
+
+      <div class="hrow hrow-rush-status" id="rush-status-row" hidden>
+        <div class="esup-block">
+          <div class="esup-label">電サポ残り</div>
+          <div class="esup-value" id="esup-remaining-value">－</div>
+        </div>
+        <div class="esup-block">
+          <div class="esup-label">連チャン</div>
+          <div class="esup-value" id="chain-count-value">0</div>
+        </div>
+        <div class="esup-block">
+          <div class="esup-label">獲得出玉</div>
+          <div class="esup-value" id="rush-balls-value">0</div>
+        </div>
+      </div>
+
+      <div class="hrow hrow-rush-money" id="rush-money-row" hidden>
+        <div class="esup-block">
+          <div class="esup-label">投資額</div>
+          <div class="esup-value" id="rush-toushi-value">0円</div>
+        </div>
+        <div class="esup-block">
+          <div class="esup-label">現在の収支</div>
+          <div class="esup-value" id="rush-profit-value">+0円</div>
+        </div>
+      </div>
+
+      <div class="hrow hrow-mode-row" id="mode-switch-row" hidden>
+        <div class="speed-btns" id="rush-mode-btns"></div>
+      </div>
+    </div>
+
+    <div id="main-screen">
+      <div id="start-controls">
+        <button type="button" class="intro-tab-btn" id="intro-tab-btn">説明を見る</button>
+        <div class="intro-text" id="intro-text" hidden>
+          <p>このゲームは、eグール超デカの「RUSH中」だけを楽しむシミュレーターです。</p>
+          <p>大当たりまでは、ワンクリックで到達！</p>
+          <p>RUSHに入ったら、「貯める」ボタンを押すたびに1回ずつ電サポ抽選が始まります。</p>
+          <p>当たれば3000ボーナス確定、そこからは50%を引き続ける限り無限に上乗せ！</p>
+        </div>
+        <div class="select-block">
+          <span class="ctrl-label">演出モード（RUSH中の当選告知カスタム）</span>
+          <select id="mode-select"></select>
+        </div>
+        <div class="hold-legend" id="hold-legend">
+          <div class="hold-legend-title">リーチ中の予告色・信頼度（目安、月山絶叫モード）</div>
+          <div class="hold-legend-body" id="hold-legend-body"></div>
+        </div>
+        <button type="button" class="btn-start" id="start-btn">スタート</button>
+      </div>
+
+      <div id="rush-screen" hidden>
+        <div class="lcd-screen" id="lcd-screen">
+          <div class="lcd-digit" id="lcd-digit-0">-</div>
+          <div class="lcd-digit" id="lcd-digit-1">-</div>
+          <div class="lcd-digit" id="lcd-digit-2">-</div>
+        </div>
+        <div class="pocket-area">
+          <div class="pocket-ball" id="pocket-ball" hidden></div>
+          <div class="pocket-hole"></div>
+        </div>
+        <button type="button" class="btn-start btn-tameru" id="tameru-btn">貯める</button>
+        <p class="prob-hint">電サポ確率 1/7.7</p>
+      </div>
+
+      <div id="overlay" hidden>
+        <div id="overlay-box"></div>
+      </div>
+
+      <!-- リゼ襲来モード専用：ポケット投入の時点で当たり確定なら0.7秒だけ
+           映るrize画像。#overlay(結果演出側)とは別系統のタイマーで動く。 -->
+      <div id="rize-flash-overlay" hidden>
+        <img src="画像/rize.jpg" class="rize-flash-img" alt="リゼ襲来">
+      </div>
+    </div>
+
+    <div id="history-panel">
+      <div id="history-title">履歴</div>
+      <div id="history-list"></div>
+    </div>
+
+  </div>
+
+  <script src="logic.js"></script>
+  <script src="rush-view-engine.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
