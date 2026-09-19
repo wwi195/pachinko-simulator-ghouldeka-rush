@@ -235,8 +235,9 @@ function popupHtml(inner) {
 
 // ---- 投資額シミュレーション〜RUSH突入演出 ----
 
-// 投資額→内訳→RUSH突入の3画面は、じっくり見たい人もいるため自動送りに
-// せず、各画面で「▶ 次へ」ボタンを押した瞬間に次へ進む。
+// 投資額画面はじっくり見たい人もいるため、ボタンを押した瞬間に次へ進む
+// (図柄ぞろい→7500 PREMIUM画面は一瞬の告知でよいため自動送りのまま、
+// その先のRUSH突入画面だけ再度ボタン送りにする)。
 function startInvestmentFlow() {
   startControlsEl.hidden = true;
 
@@ -253,11 +254,8 @@ function startInvestmentFlow() {
 }
 
 function showRouteTelop() {
-  showOverlay(popupHtml(`
-    <div class="result-main rush">図柄ぞろい → 7500 PREMIUM！</div>
-    <button type="button" class="btn-action" id="route-next-btn">▶ 次へ</button>
-  `));
-  document.getElementById('route-next-btn').addEventListener('click', showRushEntry, { once: true });
+  showOverlay(popupHtml('<div class="result-main rush">図柄ぞろい → 7500 PREMIUM！</div>'));
+  game.pendingTimeoutId = setTimeout(showRushEntry, 1600);
 }
 
 function showRushEntry() {
