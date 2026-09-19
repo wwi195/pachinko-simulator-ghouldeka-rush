@@ -314,6 +314,7 @@ function renderRushMoney() {
 // 演出はその結果を再生するだけ(演出の途中で新たに抽選しない)。
 
 const POCKET_IN_MS = 500;
+const POCKET_SETTLE_MS = 300;
 const SPIN_START_MS = 400;
 const AORI_MS = 600;
 const MISS_SPIN_MS = 1500;
@@ -352,15 +353,23 @@ function handleTameru() {
     pocketBallEl.hidden = false;
     void pocketBallEl.offsetWidth;
     pocketBallEl.classList.add('pocket-drop');
-    if (showRize) showRizeFlash();
-    maybeSenbare('pocket_in', () => {
-      game.pendingTimeoutId = setTimeout(runSpinStart, POCKET_IN_MS);
-    });
+    game.pendingTimeoutId = setTimeout(runPocketSettle, POCKET_IN_MS);
+  }
+
+  // 球がポケットに入り終えた"少し後"に、抽選が始まった合図(リゼ襲来の
+  // 先読み・突撃の最速手落下チェックポイント)を出す。プレイヤーは
+  // 「球がポケットに入ってから抽選が始まる」と捉えているため、入った
+  // 瞬間ではなく一拍置いてから発動させる。
+  function runPocketSettle() {
+    pocketBallEl.classList.remove('pocket-drop');
+    pocketBallEl.hidden = true;
+    game.pendingTimeoutId = setTimeout(() => {
+      if (showRize) showRizeFlash();
+      maybeSenbare('pocket_in', runSpinStart);
+    }, POCKET_SETTLE_MS);
   }
 
   function runSpinStart() {
-    pocketBallEl.classList.remove('pocket-drop');
-    pocketBallEl.hidden = true;
     startLcdSpin([0, 1, 2]);
     maybeSenbare('spin_start', () => {
       game.pendingTimeoutId = setTimeout(runAori, SPIN_START_MS);
