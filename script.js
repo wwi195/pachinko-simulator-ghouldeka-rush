@@ -235,6 +235,8 @@ function popupHtml(inner) {
 
 // ---- 投資額シミュレーション〜RUSH突入演出 ----
 
+// 投資額→内訳→RUSH突入の3画面は、じっくり見たい人もいるため自動送りに
+// せず、各画面で「▶ 次へ」ボタンを押した瞬間に次へ進む。
 function startInvestmentFlow() {
   startControlsEl.hidden = true;
 
@@ -245,22 +247,28 @@ function startInvestmentFlow() {
     <div class="result-main charge">投資額 ${toushi.toLocaleString()}円</div>
     <div class="result-sub">（${spins.toLocaleString()}回転）</div>
     <div class="result-detail">道中の内訳：チャージ ${chargeCount}回 ／ 図柄ぞろい ${zugarCount}回</div>
+    <button type="button" class="btn-action" id="investment-next-btn">▶ 次へ</button>
   `));
-
-  game.pendingTimeoutId = setTimeout(showRouteTelop, 1800);
+  document.getElementById('investment-next-btn').addEventListener('click', showRouteTelop, { once: true });
 }
 
 function showRouteTelop() {
-  showOverlay(popupHtml('<div class="result-main rush">図柄ぞろい → 7500 PREMIUM！</div>'));
-  game.pendingTimeoutId = setTimeout(showRushEntry, 1600);
+  showOverlay(popupHtml(`
+    <div class="result-main rush">図柄ぞろい → 7500 PREMIUM！</div>
+    <button type="button" class="btn-action" id="route-next-btn">▶ 次へ</button>
+  `));
+  document.getElementById('route-next-btn').addEventListener('click', showRushEntry, { once: true });
 }
 
 function showRushEntry() {
-  showOverlay(popupHtml('<div class="rush-title rush-title-enter">RUSH突入！</div>'));
-  game.pendingTimeoutId = setTimeout(() => {
+  showOverlay(popupHtml(`
+    <div class="rush-title rush-title-enter">RUSH突入！</div>
+    <button type="button" class="btn-action" id="rush-entry-btn">▶ RUSHへ</button>
+  `));
+  document.getElementById('rush-entry-btn').addEventListener('click', () => {
     hideOverlay();
     enterRush();
-  }, 2000);
+  }, { once: true });
 }
 
 // ---- RUSH中 ----
