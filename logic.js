@@ -1,7 +1,10 @@
 'use strict';
 
 // ---- 通常時（pachinko-simulator-ghouldeka の現行仕様をそのまま移植） ----
-// ghouldekaには回転数レートの選択肢がなく、30回転/千円で固定。
+// 1000円あたりの回転数はスタート画面で10〜50の範囲を選択可能（デフォルト30）。
+// SPIN_COSTはその既定値(30回転/千円)。実際に選択された回転数は
+// rush-view-engine.js の simulateInvestment(rotationsPerThousand) に渡して
+// 都度コストを計算する（このファイルはそちらから参照されない）。
 
 const SPIN_COST = 250 / 30;
 

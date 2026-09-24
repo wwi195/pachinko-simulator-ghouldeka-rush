@@ -2,6 +2,7 @@
 
 const game = {
   mode: DEFAULT_RUSH_MODE,
+  spinRate: DEFAULT_SPIN_RATE,
   investment: null,
   rush: null,
   spinning: false,
@@ -12,7 +13,7 @@ const game = {
 
 const HISTORY_MAX_ITEMS = 50;
 
-let modeSelectEl, startBtnEl,
+let modeSelectEl, spinRateSelectEl, startBtnEl,
     overlayEl, overlayBoxEl, rizeFlashOverlayEl, startControlsEl,
     totalPlaysValueEl, totalProfitValueEl, maxChainValueEl, totalBallsValueEl,
     lcdScreenEl, lcdDigitEls, lcdStatusChainEl, lcdStatusBallsEl, lcdRemainingEl,
@@ -26,6 +27,7 @@ let modeSelectEl, startBtnEl,
 
 function cacheDomRefs() {
   modeSelectEl = document.getElementById('mode-select');
+  spinRateSelectEl = document.getElementById('spin-rate-select');
   startBtnEl = document.getElementById('start-btn');
   overlayEl = document.getElementById('overlay');
   overlayBoxEl = document.getElementById('overlay-box');
@@ -68,6 +70,9 @@ function populateSelects() {
   ).join('');
   rushModeBtnsEl.innerHTML = RUSH_MODE_OPTIONS.map(
     (m) => `<button type="button" class="speed-btn" data-mode="${m.id}">${m.label}</button>`
+  ).join('');
+  spinRateSelectEl.innerHTML = SPIN_RATE_OPTIONS.map(
+    (rate) => `<option value="${rate}" ${rate === DEFAULT_SPIN_RATE ? 'selected' : ''}>${rate}回転</option>`
   ).join('');
 }
 
@@ -135,6 +140,9 @@ function bindEvents() {
   modeSelectEl.addEventListener('change', () => {
     game.mode = modeSelectEl.value;
     renderRushModeButtons();
+  });
+  spinRateSelectEl.addEventListener('change', () => {
+    game.spinRate = Number(spinRateSelectEl.value);
   });
   startBtnEl.addEventListener('click', startInvestmentFlow);
   rushModeBtnsEl.addEventListener('click', (e) => {
@@ -241,7 +249,7 @@ function popupHtml(inner) {
 function startInvestmentFlow() {
   startControlsEl.hidden = true;
 
-  game.investment = simulateInvestment();
+  game.investment = simulateInvestment(game.spinRate);
   const { toushi, spins, chargeCount, zugarCount } = game.investment;
 
   showOverlay(popupHtml(`

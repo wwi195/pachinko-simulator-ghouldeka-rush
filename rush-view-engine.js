@@ -19,20 +19,25 @@ function ballsToYen(balls) {
   return balls * YEN_PER_BALL;
 }
 
+// 1000円あたりの回転数（スタート画面のプルダウンで選択、10〜50の5刻み）。
+const SPIN_RATE_OPTIONS = [10, 15, 20, 25, 30, 35, 40, 45, 50];
+const DEFAULT_SPIN_RATE = 30;
+
 // 通常時を「図柄ぞろい→7500 PREMIUM(RUSH突入)」まで裏側で高速シミュレートし、
 // 投資額(円)・回転数・道中の詳細(events)を返す。ghouldekaの現行仕様では
 // チャージはRUSHに繋がらないため(+280球のみ)、zugarでPREMIUMを引くまで
-// ループし続ける。
-function simulateInvestment() {
+// ループし続ける。rotationsPerThousandは1000円あたりの回転数で、
+// スタート画面で選択された値を渡す（省略時はDEFAULT_SPIN_RATE）。
+function simulateInvestment(rotationsPerThousand = DEFAULT_SPIN_RATE) {
   let mochiDama = 0;
   let toushi = 0;
   let spins = 0;
   let chargeCount = 0;
   let zugarCount = 0;
   const events = [];
+  const cost = BALLS_PER_1000YEN / rotationsPerThousand;
 
   for (;;) {
-    const cost = _logic.SPIN_COST;
     if (mochiDama >= cost) {
       mochiDama -= cost;
     } else {
@@ -284,6 +289,8 @@ if (typeof module !== 'undefined' && module.exports) {
     BALLS_PER_1000YEN,
     ballsToYen,
     simulateInvestment,
+    SPIN_RATE_OPTIONS,
+    DEFAULT_SPIN_RATE,
     RUSH_MODE_OPTIONS,
     DEFAULT_RUSH_MODE,
     REACH_DIGITS,
