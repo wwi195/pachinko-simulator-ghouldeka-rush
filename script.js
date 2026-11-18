@@ -592,7 +592,7 @@ function showChainJudge(count, success, onReveal) {
 // 3→2→1→0 のカウントダウン。上乗せ成功時は 5%/15%/30%/50% で
 // 3/2/1/0 のいずれかのタイミングで、そのまま上乗せ成功画面（従来演出）へ。
 // 失敗時は 0 表示の0.6秒後に終了画面へ。
-// 先告知（成功時のみ・排他）：判定1回あたり👁️発光18%／3→2の間の0.4秒ブラックアウト15%。
+// 先告知（成功時のみ・排他）：判定1回あたり👁️発光18%／「2」表示後半の0.4秒ブラックアウト15%。
 const CHAIN_CD_STEP_MS = 667;
 const CHAIN_CD_HIT_DELAY_MS = 400;
 const CHAIN_CD_MISS_DELAY_MS = 600;
@@ -620,14 +620,15 @@ function rollChainCountdownTiming() {
 
 function playChainCountdown(count, success, onReveal) {
   const timing   = success ? rollChainCountdownTiming() : null;
-  // 成功時：👁️は36%。👁️が出なかった時のうち、3告知(5%)以外でブラックアウトを
+  // 成功時：👁️は36%。👁️が出なかった時のうち、1・0告知(85%)でブラックアウトを
   // 抽選し、成功時全体で30%になるよう条件付き確率を逆算する。
   const pEyeGivenSuccess = CHAIN_CD_EYE_PER_JUDGE / P_RUSH_ADD_CHANCE;
   const pBlackoutGivenSuccess = CHAIN_CD_BLACKOUT_PER_JUDGE / P_RUSH_ADD_CHANCE;
-  const pNotThreeTiming = 1 - CHAIN_CD_TIMING.find((t) => t.n === 3).weight;
+  // ブラックアウトは「2」の表示中に起きるため、1・0で告知する時のみ抽選
+  const pLateTiming = CHAIN_CD_TIMING.filter((t) => t.n <= 1).reduce((a, t) => a + t.weight, 0);
   const eye      = success && Math.random() < pEyeGivenSuccess;
-  const blackout = success && !eye && timing <= 2 &&
-    Math.random() < pBlackoutGivenSuccess / ((1 - pEyeGivenSuccess) * pNotThreeTiming);
+  const blackout = success && !eye && timing <= 1 &&
+    Math.random() < pBlackoutGivenSuccess / ((1 - pEyeGivenSuccess) * pLateTiming);
 
   showOverlay(popupHtml(`
     ${chainHeaderHtml(count)}
@@ -657,13 +658,14 @@ function playChainCountdown(count, success, onReveal) {
       game.pendingTimeoutId = setTimeout(onReveal, CHAIN_CD_HIT_DELAY_MS);
     } else if (n === 0) {
       game.pendingTimeoutId = setTimeout(onReveal, CHAIN_CD_MISS_DELAY_MS);
-    } else if (n === 3 && blackout) {
+    } else if (n === 2 && blackout) {
+      // 「2」を少し見せた後、2の表示時間の後半を暗転で隠し、そのまま「1」へ
       game.pendingTimeoutId = setTimeout(() => {
         const bo = document.getElementById('blood-blackout');
         if (bo) bo.classList.add('on');
         game.pendingTimeoutId = setTimeout(() => {
           if (bo) bo.classList.remove('on');
-          tick(2);
+          tick(1);
         }, CHAIN_CD_BLACKOUT_MS);
       }, CHAIN_CD_STEP_MS - CHAIN_CD_BLACKOUT_MS);
     } else {
