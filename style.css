@@ -760,3 +760,23 @@ select {
   display: none;
 }
 .blood-blackout.on { display: block; }
+
+/* RUSH中：終了する（早送り） */
+.btn-end-rush {
+  margin-top: 10px;
+  padding: 6px 16px;
+  border-radius: 14px;
+  background: #1a1a1a;
+  border: 1px solid #995500;
+  font-size: 12px;
+  font-weight: bold;
+  color: #ffaa55;
+  cursor: pointer;
+}
+.btn-end-rush:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-end-rush.ff:disabled {
+  opacity: 1;
+  border-color: #ffaa55;
+  animation: ff-blink 0.5s steps(2) infinite;
+}
+@keyframes ff-blink { 50% { opacity: 0.3; } }

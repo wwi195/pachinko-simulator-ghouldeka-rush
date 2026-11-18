@@ -8,6 +8,7 @@ const game = {
   spinning: false,
   stats: { totalPlays: 0, totalProfit: 0, maxChain: 0, totalBalls: 0 },
   pendingTimeoutId: null,
+  skipping: false,
   history: [],
 };
 
@@ -21,7 +22,7 @@ let modeSelectEl, spinRateSelectEl, startBtnEl,
     rushStatusRowEl, esupRemainingValueEl, chainCountValueEl, rushBallsValueEl,
     rushMoneyRowEl, rushToushiValueEl, rushProfitValueEl,
     modeSwitchRowEl, rushModeBtnsEl,
-    rushScreenEl, pocketBallEl, tameruBtnEl,
+    rushScreenEl, pocketBallEl, tameruBtnEl, endRushBtnEl,
     specRushProbEl, specPieEl, specLegendEl,
     introTabBtnEl, introTextEl, historyListEl;
 
@@ -56,6 +57,7 @@ function cacheDomRefs() {
   rushScreenEl = document.getElementById('rush-screen');
   pocketBallEl = document.getElementById('pocket-ball');
   tameruBtnEl = document.getElementById('tameru-btn');
+  endRushBtnEl = document.getElementById('end-rush-btn');
   specRushProbEl = document.getElementById('spec-rush-prob');
   specPieEl = document.getElementById('spec-pie');
   specLegendEl = document.getElementById('spec-legend');
@@ -153,6 +155,7 @@ function bindEvents() {
     renderRushModeButtons();
   });
   tameruBtnEl.addEventListener('click', handleTameru);
+  endRushBtnEl.addEventListener('click', endRushNow);
   // 月山絶叫モードの予告ボタン：一度押したら連打できないよう無効化する。
   // 当選(isHit)なら確定でレインボー+文言「僕のだぞ！」に変える(抽選にすると
   // 無色が出て「色が変わらない」ように見えてしまうため、当選時は必ず視覚的な
@@ -293,7 +296,9 @@ function enterRush() {
   resetLcdScreen();
   renderRushStatus();
   renderRushMoney();
+  game.skipping = false;
   tameruBtnEl.disabled = false;
+  endRushBtnEl.disabled = false;
 }
 
 // 連チャン数は初当たり(RUSH突入)を1連チャンと数える。game.rush.chainCountは
@@ -346,6 +351,7 @@ function handleTameru() {
   if (game.spinning) return;
   game.spinning = true;
   tameruBtnEl.disabled = true;
+  endRushBtnEl.disabled = true;
 
   const mode = game.mode;
   const spinResult = applyRushSpin(game.rush);
@@ -478,6 +484,7 @@ function backToIdle(keepLcd) {
   if (!keepLcd) resetLcdScreen();
   game.spinning = false;
   tameruBtnEl.disabled = false;
+  endRushBtnEl.disabled = false;
 }
 
 // ---- 手落下・リゼ襲来・上乗せ連鎖・外れ結果の表示 ----
@@ -758,6 +765,49 @@ function vanishLcdDigits(onDone) {
 }
 
 // ---- RUSH終了 ----
+
+// 「終了する（早送り）」：演出を省き、残りの電サポを高速で自動消化して
+// RUSH終了(rush_end)まで進める。上乗せ連鎖もlogic.js側で確定済みの結果を
+// そのまま反映する。盤面(液晶・連チャン数・出玉)が高速で動く様子を見せ、
+// 終了後は通常のRUSH終了画面へ（そこから開始画面に戻れる）。
+const FF_STEP_MS = 60;
+
+function endRushNow() {
+  if (game.skipping || game.spinning || !game.rush) return;
+  game.skipping = true;
+  game.spinning = true;
+  tameruBtnEl.disabled = true;
+  endRushBtnEl.disabled = true;
+  endRushBtnEl.classList.add('ff');
+  endRushBtnEl.textContent = '▶▶ 早送り中';
+  stopLcdSpin();
+  lcdScreenEl.classList.remove('lcd-aori', 'lcd-reach', 'lcd-aligned');
+
+  const step = () => {
+    const res = applyRushSpin(game.rush);
+    game.rush = res.rushState;
+    if (res.outcome === 'hit') {
+      const d = randomDigit();
+      [0, 1, 2].forEach((i) => setLcdDigit(i, d));
+    } else {
+      randomNonMatchingTriple().forEach((d, i) => setLcdDigit(i, d));
+    }
+    renderRushStatus();
+    renderRushMoney();
+    if (res.outcome === 'rush_end') {
+      game.pendingTimeoutId = setTimeout(() => {
+        endRushBtnEl.classList.remove('ff');
+        endRushBtnEl.textContent = '終了する（早送り）';
+        game.spinning = false;
+        game.skipping = false;
+        finishRushNow();
+      }, 400);
+      return;
+    }
+    game.pendingTimeoutId = setTimeout(step, FF_STEP_MS);
+  };
+  step();
+}
 
 function finishRushNow() {
   const chain = currentChainDisplay();
