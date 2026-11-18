@@ -518,7 +518,7 @@ function playUenoseChain(addChainCount, onDone) {
   game.pendingTimeoutId = setTimeout(runJudge, CHAIN_REVEAL_MS);
 
   function runJudge() {
-    showChainJudge(() => {
+    showChainJudge(shown, () => {
       if (shown < addChainCount) {
         shown++;
         showChainStep(shown, true);
@@ -543,8 +543,22 @@ function showChainStep(count, isAdd) {
   `));
 }
 
-function showChainJudge(onReveal) {
+// 上乗せ判定中画面。現在のボーナスと獲得出玉、50%継続回数とその出現率を表示する。
+function showChainJudge(count, onReveal) {
+  const nominal = count * RUSH_HIT_NOMINAL_BALLS;
+  const actual  = count * RUSH_HIT_ACTUAL_BALLS;
+  const streak  = count - 1;
+  let probHtml = '';
+  if (streak >= 1) {
+    const prob = Math.pow(P_RUSH_ADD_CHANCE, streak);
+    const pct = prob * 100;
+    const pctText = pct >= 1 ? pct.toFixed(2).replace(/\.?0+$/, '') : pct >= 0.01 ? pct.toFixed(3) : pct.toPrecision(2);
+    const rare = pct < 1 ? `<br>約${Math.round(1 / prob).toLocaleString()}回に1回の割合です` : '';
+    probHtml = `<br>出現確率 ${pctText}%${rare}`;
+  }
   showOverlay(popupHtml(`
+    <div class="chain-label">${nominal.toLocaleString()}ボーナス　${actual.toLocaleString()}球獲得</div>
+    <div class="chain-streak">50%　${streak}回継続中${probHtml}</div>
     <div class="result-main charge">上乗せ判定中…</div>
     <div class="result-sub">継続率50%</div>
     <button type="button" class="btn-action" id="chain-judge-btn">▶ 上乗せジャッジ</button>
