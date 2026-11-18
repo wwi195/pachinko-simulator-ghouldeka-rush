@@ -160,7 +160,7 @@ body {
 .pocket-area {
   position: relative;
   width: 132px;
-  height: 104px;
+  height: 114px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -202,8 +202,8 @@ body {
 }
 .go-plate {
   position: relative;
-  width: 120px;
-  height: 56px;
+  width: 132px;
+  height: 70px;
   margin-top: -4px;
   z-index: 1;
   display: flex;
@@ -266,9 +266,9 @@ body {
   100% { transform: rotate(-8deg) skewX(-6deg) scale(1); }
 }
 @keyframes goBurstSpin {
-  0%   { transform: scale(1) rotate(0deg); }
-  30%  { transform: scale(1.12) rotate(4deg); }
-  100% { transform: scale(1) rotate(0deg); }
+  0%   { transform: scale(1); filter: drop-shadow(0 2px 2px rgba(0,0,0,0.7)); }
+  30%  { transform: scale(1.12); filter: drop-shadow(0 0 6px #ff1744) drop-shadow(0 0 10px #ff5722); }
+  100% { transform: scale(1); filter: drop-shadow(0 2px 2px rgba(0,0,0,0.7)); }
 }
 
 .pocket-ball {
