@@ -158,7 +158,7 @@ function bindEvents() {
   endRushBtnEl.addEventListener('click', endRushNow);
   // 月山絶叫モードの予告ボタン：一度押したら連打できないよう無効化する。
   // 色はレインボー（「僕のだぞ！」）か変化なしの2択。外れリーチでは
-  // 必ず変化なし。当たりリーチは95%でレインボー、5%は変化なしのまま当たる
+  // 必ず変化なし。当たりリーチは90%でレインボー、10%は変化なしのまま当たる
   // （大当たり確率1/7.7は変わらない）。
   tsukiyamaBtnEl.addEventListener('click', () => {
     if (tsukiyamaBtnEl.disabled || tsukiyamaBtnIsHit === null) return;
@@ -331,6 +331,8 @@ function renderRushMoney() {
 // 突撃モードの手落下発生箇所は、演出を始める前にすべて事前に抽選しておき、
 // 演出はその結果を再生するだけ(演出の途中で新たに抽選しない)。
 
+const RIZE_FLASH_GIVEN_HIT = 0.95;
+
 const POCKET_IN_MS = 500;
 const POCKET_SETTLE_MS = 300;
 const SPIN_START_MS = 400;
@@ -358,7 +360,8 @@ function handleTameru() {
   const isReach = rollIsReach(isHit);
   const reachDigit = isReach ? rollReachDigit(isHit) : null;
   const senbareCheckpoint = (mode === 'tokigeki' && isHit) ? pickTokigekiSenbareCheckpoint() : null;
-  const showRize = mode === 'rize' && isHit;
+  // リゼ襲来：当たり時の95%でリゼの目が出る（残り5%は出ずに当たる）
+  const showRize = mode === 'rize' && isHit && Math.random() < RIZE_FLASH_GIVEN_HIT;
 
   function maybeSenbare(checkpoint, onDone) {
     if (senbareCheckpoint === checkpoint) {
@@ -677,9 +680,8 @@ function showRushEndResult(onDone) {
 
 let tsukiyamaBtnIsHit = null;
 
-// 当たりリーチで絶叫ボタンがレインボーになる割合（残り5%は変化なしで当たり）。
-// 変化なし全体のうち当たりは約1.5%になる。
-const TSUKIYAMA_RAINBOW_GIVEN_HIT = 0.95;
+// 当たりリーチで絶叫ボタンがレインボーになる割合（残り10%は変化なしで当たり）。
+const TSUKIYAMA_RAINBOW_GIVEN_HIT = 0.90;
 
 function showTsukiyamaButton(isHit) {
   tsukiyamaBtnIsHit = isHit;
