@@ -546,7 +546,6 @@ function showChainStep(count, isAdd) {
 // 上乗せ判定中画面。現在のボーナスと獲得出玉、50%継続回数とその出現率を表示する。
 function showChainJudge(count, onReveal) {
   const nominal = count * RUSH_HIT_NOMINAL_BALLS;
-  const actual  = count * RUSH_HIT_ACTUAL_BALLS;
   const streak  = count - 1;
   let probHtml = '';
   if (streak >= 1) {
@@ -557,7 +556,7 @@ function showChainJudge(count, onReveal) {
     probHtml = `<br>出現確率 ${pctText}%${rare}`;
   }
   showOverlay(popupHtml(`
-    <div class="chain-label">${nominal.toLocaleString()}ボーナス　${actual.toLocaleString()}球獲得</div>
+    <div class="chain-label">${nominal.toLocaleString()}ボーナス</div>
     <div class="chain-streak">50%　${streak}回継続中${probHtml}</div>
     <div class="result-main charge">上乗せ判定中…</div>
     <div class="result-sub">継続率50%</div>
