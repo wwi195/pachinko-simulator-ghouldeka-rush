@@ -84,8 +84,11 @@ function applyRushSpin(rushState) {
   };
 }
 
-// 外れ変動のうち、ガセリーチになる確率（確定値。保留色などから逆算しない）。
-const P_FAKE_REACH_GIVEN_MISS = 0.5;
+// リーチ発生率（当たり＋ガセリーチ）を43%にする。
+// 当たりは必ずリーチなので、外れ変動のうちガセリーチになる確率を逆算する（約34.5%）。
+// → リーチ→当たりは約30.2%。
+const REACH_RATE_TARGET = 0.43;
+const P_FAKE_REACH_GIVEN_MISS = (REACH_RATE_TARGET - P_RUSH) / (1 - P_RUSH);
 
 function rollIsReach(isHit) {
   return isHit ? true : Math.random() < P_FAKE_REACH_GIVEN_MISS;
@@ -106,6 +109,7 @@ if (typeof module !== 'undefined' && module.exports) {
     RUSH_HIT_NOMINAL_BALLS,
     createRushState,
     applyRushSpin,
+    REACH_RATE_TARGET,
     P_FAKE_REACH_GIVEN_MISS,
     rollIsReach,
   };

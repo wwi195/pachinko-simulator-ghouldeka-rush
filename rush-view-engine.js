@@ -81,7 +81,7 @@ const DEFAULT_RUSH_MODE = 'default';
 // pachinko-simulator-ghoul-rushと同じ考え方：当落そのもの(P_RUSH)には触れず、
 // リーチの両端に出す数字だけを当落に応じた重み付き抽選にする。7・3は信頼度を
 // 明示指定し、残り6数字は均等に分け合う。ガセリーチ発生率は本プロジェクトでは
-// 保留色から逆算せず、P_FAKE_REACH_GIVEN_MISS(0.5)固定値を使う。
+// 保留色から逆算せず、P_FAKE_REACH_GIVEN_MISS(リーチ率43%から逆算した約34.5%)を使う。
 const REACH_DIGITS = [1, 2, 3, 4, 5, 6, 7, 8];
 const REACH_DIGIT_RELIABILITY = { 7: 1, 3: 0.9 };
 const REACH_DIGIT_HIT_SHARE = { 7: 5, 3: 10 };

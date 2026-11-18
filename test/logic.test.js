@@ -93,14 +93,20 @@ test('applyRushSpin: 上乗せに3回連続成功後に失敗すると、addChai
   }
 });
 
-test('rollIsReach: 当たりは常にtrue、外れはP_FAKE_REACH_GIVEN_MISS(0.5)で判定', () => {
+test('リーチ発生率は43%（ガセリーチ率は逆算で約34.5%）', () => {
+  const reach = logic.P_RUSH + (1 - logic.P_RUSH) * logic.P_FAKE_REACH_GIVEN_MISS;
+  assert.ok(Math.abs(reach - 0.43) < 1e-12);
+  assert.ok(Math.abs(logic.P_FAKE_REACH_GIVEN_MISS - 0.3449) < 0.001);
+});
+
+test('rollIsReach: 当たりは常にtrue、外れはP_FAKE_REACH_GIVEN_MISSで判定', () => {
   const origRandom = Math.random;
   try {
     Math.random = () => 0.9999;
     assert.equal(logic.rollIsReach(true), true);
     Math.random = () => 0.1;
     assert.equal(logic.rollIsReach(false), true);
-    Math.random = () => 0.9;
+    Math.random = () => 0.5;
     assert.equal(logic.rollIsReach(false), false);
   } finally {
     Math.random = origRandom;
