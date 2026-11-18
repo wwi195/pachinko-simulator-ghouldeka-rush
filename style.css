@@ -159,28 +159,127 @@ body {
    「貯める」押下直後、球が上から落ちてポケットに吸い込まれる短い演出。 */
 .pocket-area {
   position: relative;
-  width: 60px;
-  height: 60px;
+  width: 132px;
+  height: 104px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---- 始動口「GO」ポケット ---- */
+.go-chucker {
+  position: relative;
+  width: 64px;
+  height: 40px;
+  margin-top: 6px;
+  z-index: 2;
+}
+.go-chucker-mouth {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 30px;
+  height: 10px;
+  margin-left: -15px;
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  background: radial-gradient(ellipse at 50% 0%, #000 40%, #2a0030 100%);
+  border: 2px solid #ffd54f;
+  border-top: none;
+  box-shadow: 0 0 6px rgba(255, 64, 160, 0.8);
+}
+.go-chucker-glass {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 6px 6px 10px 10px;
+  background:
+    linear-gradient(115deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 30%),
+    linear-gradient(180deg, rgba(255, 90, 200, 0.35), rgba(120, 40, 255, 0.35));
+  border: 2px solid rgba(255, 213, 79, 0.9);
+  box-shadow: 0 0 10px rgba(255, 64, 180, 0.6), inset 0 0 8px rgba(255,255,255,0.3);
+}
+.go-plate {
+  position: relative;
+  width: 120px;
+  height: 56px;
+  margin-top: -4px;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.pocket-hole {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #333, #000 70%);
-  border: 2px solid #555;
-  box-shadow: inset 0 3px 6px rgba(0,0,0,0.8);
+.go-burst {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.7));
 }
+.go-text {
+  position: relative;
+  font-size: 34px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -2px;
+  line-height: 1;
+  color: #fff6c2;
+  background: linear-gradient(180deg, #fffbe0 0%, #ffd600 45%, #ff8f00 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1.5px #2a0000;
+  filter: drop-shadow(2px 2px 0 #b71c1c) drop-shadow(0 0 3px #000);
+  transform: rotate(-8deg) skewX(-6deg);
+}
+.go-in-tag {
+  position: absolute;
+  right: 2px;
+  top: -2px;
+  padding: 0 4px;
+  font-size: 9px;
+  font-weight: bold;
+  color: #fff;
+  background: #1565c0;
+  border: 1px solid #fff;
+  border-radius: 3px;
+}
+
+/* 入賞時：チャッカーが光り、GOが弾ける */
+.go-pocket.go-hit .go-chucker-glass {
+  animation: goGlassFlash 0.5s ease-out;
+}
+.go-pocket.go-hit .go-text {
+  animation: goTextPop 0.5s ease-out;
+}
+.go-pocket.go-hit .go-burst {
+  animation: goBurstSpin 0.5s ease-out;
+}
+@keyframes goGlassFlash {
+  0%   { box-shadow: 0 0 24px #fff, 0 0 40px #ff40b4, inset 0 0 18px #fff; background-color: rgba(255,255,255,0.6); }
+  100% { box-shadow: 0 0 10px rgba(255, 64, 180, 0.6), inset 0 0 8px rgba(255,255,255,0.3); background-color: transparent; }
+}
+@keyframes goTextPop {
+  0%   { transform: rotate(-8deg) skewX(-6deg) scale(1); }
+  30%  { transform: rotate(-4deg) skewX(-6deg) scale(1.35); filter: drop-shadow(2px 2px 0 #b71c1c) drop-shadow(0 0 10px #ffea00); }
+  100% { transform: rotate(-8deg) skewX(-6deg) scale(1); }
+}
+@keyframes goBurstSpin {
+  0%   { transform: scale(1) rotate(0deg); }
+  30%  { transform: scale(1.12) rotate(4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
 .pocket-ball {
   position: absolute;
-  top: -20px;
+  top: -22px;
   left: 50%;
   width: 14px;
   height: 14px;
   margin-left: -7px;
   border-radius: 50%;
+  z-index: 3;
   background: radial-gradient(circle at 35% 30%, #fff, #ccc 55%, #888);
   box-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
@@ -188,9 +287,9 @@ body {
   animation: pocketDrop 0.5s cubic-bezier(0.55, 0, 0.85, 0.35) forwards;
 }
 @keyframes pocketDrop {
-  0%   { top: -20px; opacity: 1; transform: scale(1); }
-  85%  { top: 18px; opacity: 1; transform: scale(0.9); }
-  100% { top: 20px; opacity: 0; transform: scale(0.4); }
+  0%   { top: -22px; opacity: 1; transform: scale(1); }
+  70%  { top: 4px;   opacity: 1; transform: scale(0.95); }
+  100% { top: 22px;  opacity: 0; transform: scale(0.5); }
 }
 
 .btn-tameru {

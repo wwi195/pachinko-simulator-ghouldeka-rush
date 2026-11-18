@@ -385,6 +385,13 @@ function handleTameru() {
   function runPocketSettle() {
     pocketBallEl.classList.remove('pocket-drop');
     pocketBallEl.hidden = true;
+    // GOポケットの入賞演出（光る＋GOが弾ける）
+    const goPocket = document.getElementById('go-pocket');
+    if (goPocket && !game.skipping) {
+      goPocket.classList.remove('go-hit');
+      void goPocket.offsetWidth;
+      goPocket.classList.add('go-hit');
+    }
     game.pendingTimeoutId = setTimeout(() => {
       if (showRize) showRizeFlash();
       maybeSenbare('pocket_in', runSpinStart);
