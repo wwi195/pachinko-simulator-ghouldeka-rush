@@ -592,14 +592,15 @@ function showChainJudge(count, success, onReveal) {
 // 3→2→1→0 のカウントダウン。上乗せ成功時は 5%/15%/30%/50% で
 // 3/2/1/0 のいずれかのタイミングで、そのまま上乗せ成功画面（従来演出）へ。
 // 失敗時は 0 表示の0.6秒後に終了画面へ。
-// 先告知（成功時のみ・各20%）：左上の👁️発光／3→2の間の0.15秒ブラックアウト。
+// 先告知（成功時のみ・排他）：判定1回あたり👁️発光18%／3→2の間の0.15秒ブラックアウト15%。
 const CHAIN_CD_STEP_MS = 667;
 const CHAIN_CD_HIT_DELAY_MS = 400;
 const CHAIN_CD_MISS_DELAY_MS = 600;
 const CHAIN_CD_EYE_DELAY_MS = 150;
 const CHAIN_CD_BLACKOUT_MS = 150;
-const P_CHAIN_CD_EYE = 0.2;
-const P_CHAIN_CD_BLACKOUT = 0.2;
+// 判定1回あたり(成功率50%込み)の出現率。どちらか一方しか出ない(排他)。
+const CHAIN_CD_EYE_PER_JUDGE = 0.18;
+const CHAIN_CD_BLACKOUT_PER_JUDGE = 0.15;
 const CHAIN_CD_TIMING = [
   { n: 3, weight: 0.05 },
   { n: 2, weight: 0.10 },
@@ -619,8 +620,14 @@ function rollChainCountdownTiming() {
 
 function playChainCountdown(count, success, onReveal) {
   const timing   = success ? rollChainCountdownTiming() : null;
-  const eye      = success && Math.random() < P_CHAIN_CD_EYE;
-  const blackout = success && timing <= 2 && Math.random() < P_CHAIN_CD_BLACKOUT;
+  // 成功時：👁️は36%。👁️が出なかった時のうち、3告知(5%)以外でブラックアウトを
+  // 抽選し、成功時全体で30%になるよう条件付き確率を逆算する。
+  const pEyeGivenSuccess = CHAIN_CD_EYE_PER_JUDGE / P_RUSH_ADD_CHANCE;
+  const pBlackoutGivenSuccess = CHAIN_CD_BLACKOUT_PER_JUDGE / P_RUSH_ADD_CHANCE;
+  const pNotThreeTiming = 1 - CHAIN_CD_TIMING.find((t) => t.n === 3).weight;
+  const eye      = success && Math.random() < pEyeGivenSuccess;
+  const blackout = success && !eye && timing <= 2 &&
+    Math.random() < pBlackoutGivenSuccess / ((1 - pEyeGivenSuccess) * pNotThreeTiming);
 
   showOverlay(popupHtml(`
     ${chainHeaderHtml(count)}
