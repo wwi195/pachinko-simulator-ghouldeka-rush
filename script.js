@@ -518,8 +518,9 @@ function playUenoseChain(addChainCount, onDone) {
   game.pendingTimeoutId = setTimeout(runJudge, CHAIN_REVEAL_MS);
 
   function runJudge() {
-    showChainJudge(shown, () => {
-      if (shown < addChainCount) {
+    const success = shown < addChainCount;
+    showChainJudge(shown, success, () => {
+      if (success) {
         shown++;
         showChainStep(shown, true);
         game.pendingTimeoutId = setTimeout(runJudge, CHAIN_REVEAL_MS);
@@ -543,8 +544,8 @@ function showChainStep(count, isAdd) {
   `));
 }
 
-// 上乗せ判定中画面。現在のボーナスと獲得出玉、50%継続回数とその出現率を表示する。
-function showChainJudge(count, onReveal) {
+// 上乗せ判定中画面。現在のボーナス、50%継続回数とその出現率を表示する。
+function chainHeaderHtml(count) {
   const nominal = count * RUSH_HIT_NOMINAL_BALLS;
   const streak  = count - 1;
   let probHtml = '';
@@ -555,14 +556,98 @@ function showChainJudge(count, onReveal) {
     const rare = pct < 1 ? `<br>約${Math.round(1 / prob).toLocaleString()}回に1回の割合です` : '';
     probHtml = `<br>出現確率 ${pctText}%${rare}`;
   }
-  showOverlay(popupHtml(`
+  return `
     <div class="chain-label">${nominal.toLocaleString()}ボーナス</div>
-    <div class="chain-streak">50%　${streak}回継続中${probHtml}</div>
+    <div class="chain-streak">50%　${streak}回継続中${probHtml}</div>`;
+}
+
+function showChainJudge(count, success, onReveal) {
+  showOverlay(popupHtml(`
+    ${chainHeaderHtml(count)}
     <div class="result-main charge">上乗せ判定中…</div>
     <div class="result-sub">継続率50%</div>
     <button type="button" class="btn-action" id="chain-judge-btn">▶ 上乗せジャッジ</button>
   `));
-  document.getElementById('chain-judge-btn').addEventListener('click', onReveal, { once: true });
+  document.getElementById('chain-judge-btn').addEventListener('click',
+    () => playChainCountdown(count, success, onReveal), { once: true });
+}
+
+// ---- 上乗せジャッジ：血のカウントダウン演出 ----
+// 3→2→1→0 のカウントダウン。上乗せ成功時は 5%/15%/30%/50% で
+// 3/2/1/0 のいずれかのタイミングで手落下カットインが発生し、成功画面へ。
+// 失敗時は 0 表示の0.2秒後に終了画面へ。
+// 先告知（成功時のみ・各20%）：左上の👁️発光／3→2の間の0.05秒ブラックアウト。
+const CHAIN_CD_STEP_MS = 667;
+const CHAIN_CD_HIT_DELAY_MS = 400;
+const CHAIN_CD_MISS_DELAY_MS = 200;
+const CHAIN_CD_EYE_DELAY_MS = 150;
+const CHAIN_CD_BLACKOUT_MS = 50;
+const P_CHAIN_CD_EYE = 0.2;
+const P_CHAIN_CD_BLACKOUT = 0.2;
+const CHAIN_CD_TIMING = [
+  { n: 3, weight: 0.05 },
+  { n: 2, weight: 0.15 },
+  { n: 1, weight: 0.30 },
+  { n: 0, weight: 0.50 },
+];
+
+function rollChainCountdownTiming() {
+  const r = Math.random();
+  let cum = 0;
+  for (const t of CHAIN_CD_TIMING) {
+    cum += t.weight;
+    if (r < cum) return t.n;
+  }
+  return 0;
+}
+
+function playChainCountdown(count, success, onReveal) {
+  const timing   = success ? rollChainCountdownTiming() : null;
+  const eye      = success && Math.random() < P_CHAIN_CD_EYE;
+  const blackout = success && timing <= 2 && Math.random() < P_CHAIN_CD_BLACKOUT;
+
+  showOverlay(popupHtml(`
+    ${chainHeaderHtml(count)}
+    <div class="blood-cd-box">
+      <span class="blood-eye" id="blood-eye">👁️</span>
+      <div class="blood-cd" id="blood-cd"></div>
+      <div class="blood-blackout" id="blood-blackout"></div>
+    </div>
+  `));
+
+  if (eye) {
+    setTimeout(() => {
+      const el = document.getElementById('blood-eye');
+      if (el) el.classList.add('glow');
+    }, CHAIN_CD_EYE_DELAY_MS);
+  }
+
+  const tick = (n) => {
+    const el = document.getElementById('blood-cd');
+    if (!el) return;
+    el.textContent = n;
+    el.classList.remove('pop');
+    void el.offsetWidth;
+    el.classList.add('pop');
+
+    if (success && n === timing) {
+      game.pendingTimeoutId = setTimeout(() => showSenbareCutin(onReveal), CHAIN_CD_HIT_DELAY_MS);
+    } else if (n === 0) {
+      game.pendingTimeoutId = setTimeout(onReveal, CHAIN_CD_MISS_DELAY_MS);
+    } else if (n === 3 && blackout) {
+      game.pendingTimeoutId = setTimeout(() => {
+        const bo = document.getElementById('blood-blackout');
+        if (bo) bo.classList.add('on');
+        game.pendingTimeoutId = setTimeout(() => {
+          if (bo) bo.classList.remove('on');
+          tick(2);
+        }, CHAIN_CD_BLACKOUT_MS);
+      }, CHAIN_CD_STEP_MS - CHAIN_CD_BLACKOUT_MS);
+    } else {
+      game.pendingTimeoutId = setTimeout(() => tick(n - 1), CHAIN_CD_STEP_MS);
+    }
+  };
+  tick(3);
 }
 
 function showChainFinal(count) {
