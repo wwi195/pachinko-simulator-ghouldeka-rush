@@ -858,10 +858,12 @@ select {
   from { transform: scale(1); }
   to   { transform: scale(1.15); }
 }
+/* ブラックアウト：画面全体（オーバーレイ含む）を真っ暗にする */
 .blood-blackout {
-  position: absolute;
+  position: fixed;
   inset: 0;
   background: #000;
+  z-index: 2147483647;
   display: none;
 }
 .blood-blackout.on { display: block; }
