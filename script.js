@@ -157,19 +157,16 @@ function bindEvents() {
   tameruBtnEl.addEventListener('click', handleTameru);
   endRushBtnEl.addEventListener('click', endRushNow);
   // 月山絶叫モードの予告ボタン：一度押したら連打できないよう無効化する。
-  // 当選(isHit)なら確定でレインボー+文言「僕のだぞ！」に変える(抽選にすると
-  // 無色が出て「色が変わらない」ように見えてしまうため、当選時は必ず視覚的な
-  // 変化を保証する)。外れ(ガセリーチ)のときだけ、confidence色の抽選で
-  // 1回だけ色を決めて光らせる(この場合は無色になることもある)。
+  // 色はレインボー（「僕のだぞ！」）か変化なしの2択。外れリーチでは
+  // 必ず変化なし。当たりリーチでもTSUKIYAMA_RAINBOW_GIVEN_HITの確率で
+  // しかレインボーにならず、「変化なし」の5%が当たりになるよう逆算している
+  // （大当たり確率1/7.7は変わらない）。
   tsukiyamaBtnEl.addEventListener('click', () => {
     if (tsukiyamaBtnEl.disabled || tsukiyamaBtnIsHit === null) return;
     tsukiyamaBtnEl.disabled = true;
-    if (tsukiyamaBtnIsHit) {
+    if (tsukiyamaBtnIsHit && Math.random() < TSUKIYAMA_RAINBOW_GIVEN_HIT) {
       tsukiyamaBtnEl.classList.add('tsukiyama-btn-rainbow');
       tsukiyamaBtnEl.textContent = '僕のだぞ！';
-    } else {
-      const color = rollConfidenceColor(false);
-      tsukiyamaBtnEl.classList.add(`tsukiyama-btn-${color}`);
     }
   });
   introTabBtnEl.addEventListener('click', () => {
@@ -677,6 +674,17 @@ function showRushEndResult(onDone) {
 // ---- 月山絶叫モード：予告ボタン ----
 
 let tsukiyamaBtnIsHit = null;
+
+// 絶叫ボタンで「変化なし」だった時に、それでも当たっている割合。
+const TSUKIYAMA_HIT_RATE_WHEN_NO_RAINBOW = 0.05;
+// リーチ中の当たり割合 = P_RUSH / (P_RUSH + 外れ×ガセリーチ率)
+const TSUKIYAMA_HIT_GIVEN_REACH =
+  P_RUSH / (P_RUSH + (1 - P_RUSH) * P_FAKE_REACH_GIVEN_MISS);
+// 変化なし中の当たり割合が5%になるよう、当たり時のレインボー率を逆算
+// (h(1-r) = 0.05 × (h(1-r) + (1-h)) → 1-r = 0.05(1-h) / (0.95h))。
+const TSUKIYAMA_RAINBOW_GIVEN_HIT = 1 -
+  (TSUKIYAMA_HIT_RATE_WHEN_NO_RAINBOW * (1 - TSUKIYAMA_HIT_GIVEN_REACH)) /
+  ((1 - TSUKIYAMA_HIT_RATE_WHEN_NO_RAINBOW) * TSUKIYAMA_HIT_GIVEN_REACH);
 
 function showTsukiyamaButton(isHit) {
   tsukiyamaBtnIsHit = isHit;
