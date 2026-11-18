@@ -166,6 +166,9 @@ function bindEvents() {
     if (tsukiyamaBtnIsHit && Math.random() < TSUKIYAMA_RAINBOW_GIVEN_HIT) {
       tsukiyamaBtnEl.classList.add('tsukiyama-btn-rainbow');
       tsukiyamaBtnEl.textContent = '僕のだぞ！';
+    } else {
+      // 変化なし：少し暗くするだけ（5%は当たりのため外れ確定ではない）
+      tsukiyamaBtnEl.classList.add('tsukiyama-btn-dim');
     }
   });
   introTabBtnEl.addEventListener('click', () => {

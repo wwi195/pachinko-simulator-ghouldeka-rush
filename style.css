@@ -245,6 +245,7 @@ body {
   transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
 }
 .tsukiyama-btn:disabled { cursor: default; }
+.tsukiyama-btn.tsukiyama-btn-dim { background: #0d0d0d; border-color: #333; color: #666; }
 
 .tsukiyama-btn.tsukiyama-btn-none    { background: #2a2a2a; border-color: #555; color: #aaa; }
 .tsukiyama-btn.tsukiyama-btn-flash   { background: #3a3a3a; border-color: #999; color: #eee; }
