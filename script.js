@@ -592,12 +592,12 @@ function showChainJudge(count, success, onReveal) {
 // 3→2→1→0 のカウントダウン。上乗せ成功時は 5%/15%/30%/50% で
 // 3/2/1/0 のいずれかのタイミングで、そのまま上乗せ成功画面（従来演出）へ。
 // 失敗時は 0 表示の0.6秒後に終了画面へ。
-// 先告知（成功時のみ・排他）：判定1回あたり👁️発光18%／3→2の間の0.15秒ブラックアウト15%。
+// 先告知（成功時のみ・排他）：判定1回あたり👁️発光18%／3→2の間の0.4秒ブラックアウト15%。
 const CHAIN_CD_STEP_MS = 667;
 const CHAIN_CD_HIT_DELAY_MS = 400;
 const CHAIN_CD_MISS_DELAY_MS = 600;
 const CHAIN_CD_EYE_DELAY_MS = 150;
-const CHAIN_CD_BLACKOUT_MS = 150;
+const CHAIN_CD_BLACKOUT_MS = 400;
 // 判定1回あたり(成功率50%込み)の出現率。どちらか一方しか出ない(排他)。
 const CHAIN_CD_EYE_PER_JUDGE = 0.18;
 const CHAIN_CD_BLACKOUT_PER_JUDGE = 0.15;
