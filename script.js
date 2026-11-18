@@ -158,8 +158,7 @@ function bindEvents() {
   endRushBtnEl.addEventListener('click', endRushNow);
   // 月山絶叫モードの予告ボタン：一度押したら連打できないよう無効化する。
   // 色はレインボー（「僕のだぞ！」）か変化なしの2択。外れリーチでは
-  // 必ず変化なし。当たりリーチでもTSUKIYAMA_RAINBOW_GIVEN_HITの確率で
-  // しかレインボーにならず、「変化なし」の5%が当たりになるよう逆算している
+  // 必ず変化なし。当たりリーチは95%でレインボー、5%は変化なしのまま当たる
   // （大当たり確率1/7.7は変わらない）。
   tsukiyamaBtnEl.addEventListener('click', () => {
     if (tsukiyamaBtnEl.disabled || tsukiyamaBtnIsHit === null) return;
@@ -675,16 +674,9 @@ function showRushEndResult(onDone) {
 
 let tsukiyamaBtnIsHit = null;
 
-// 絶叫ボタンで「変化なし」だった時に、それでも当たっている割合。
-const TSUKIYAMA_HIT_RATE_WHEN_NO_RAINBOW = 0.05;
-// リーチ中の当たり割合 = P_RUSH / (P_RUSH + 外れ×ガセリーチ率)
-const TSUKIYAMA_HIT_GIVEN_REACH =
-  P_RUSH / (P_RUSH + (1 - P_RUSH) * P_FAKE_REACH_GIVEN_MISS);
-// 変化なし中の当たり割合が5%になるよう、当たり時のレインボー率を逆算
-// (h(1-r) = 0.05 × (h(1-r) + (1-h)) → 1-r = 0.05(1-h) / (0.95h))。
-const TSUKIYAMA_RAINBOW_GIVEN_HIT = 1 -
-  (TSUKIYAMA_HIT_RATE_WHEN_NO_RAINBOW * (1 - TSUKIYAMA_HIT_GIVEN_REACH)) /
-  ((1 - TSUKIYAMA_HIT_RATE_WHEN_NO_RAINBOW) * TSUKIYAMA_HIT_GIVEN_REACH);
+// 当たりリーチで絶叫ボタンがレインボーになる割合（残り5%は変化なしで当たり）。
+// 変化なし全体のうち当たりは約1.5%になる。
+const TSUKIYAMA_RAINBOW_GIVEN_HIT = 0.95;
 
 function showTsukiyamaButton(isHit) {
   tsukiyamaBtnIsHit = isHit;
