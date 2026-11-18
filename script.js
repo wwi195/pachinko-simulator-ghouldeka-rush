@@ -581,7 +581,7 @@ function showChainJudge(count, success, onReveal) {
 
 // ---- 上乗せジャッジ：血のカウントダウン演出 ----
 // 3→2→1→0 のカウントダウン。上乗せ成功時は 5%/15%/30%/50% で
-// 3/2/1/0 のいずれかのタイミングで手落下カットインが発生し、成功画面へ。
+// 3/2/1/0 のいずれかのタイミングで、そのまま上乗せ成功画面（従来演出）へ。
 // 失敗時は 0 表示の0.2秒後に終了画面へ。
 // 先告知（成功時のみ・各20%）：左上の👁️発光／3→2の間の0.05秒ブラックアウト。
 const CHAIN_CD_STEP_MS = 667;
@@ -638,7 +638,7 @@ function playChainCountdown(count, success, onReveal) {
     el.classList.add('pop');
 
     if (success && n === timing) {
-      game.pendingTimeoutId = setTimeout(() => showSenbareCutin(onReveal), CHAIN_CD_HIT_DELAY_MS);
+      game.pendingTimeoutId = setTimeout(onReveal, CHAIN_CD_HIT_DELAY_MS);
     } else if (n === 0) {
       game.pendingTimeoutId = setTimeout(onReveal, CHAIN_CD_MISS_DELAY_MS);
     } else if (n === 3 && blackout) {
