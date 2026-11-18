@@ -578,11 +578,11 @@ function showChainJudge(count, success, onReveal) {
 // ---- 上乗せジャッジ：血のカウントダウン演出 ----
 // 3→2→1→0 のカウントダウン。上乗せ成功時は 5%/15%/30%/50% で
 // 3/2/1/0 のいずれかのタイミングで、そのまま上乗せ成功画面（従来演出）へ。
-// 失敗時は 0 表示の0.2秒後に終了画面へ。
+// 失敗時は 0 表示の0.6秒後に終了画面へ。
 // 先告知（成功時のみ・各20%）：左上の👁️発光／3→2の間の0.05秒ブラックアウト。
 const CHAIN_CD_STEP_MS = 667;
 const CHAIN_CD_HIT_DELAY_MS = 400;
-const CHAIN_CD_MISS_DELAY_MS = 200;
+const CHAIN_CD_MISS_DELAY_MS = 600;
 const CHAIN_CD_EYE_DELAY_MS = 150;
 const CHAIN_CD_BLACKOUT_MS = 50;
 const P_CHAIN_CD_EYE = 0.2;
