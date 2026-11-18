@@ -592,9 +592,9 @@ const P_CHAIN_CD_EYE = 0.2;
 const P_CHAIN_CD_BLACKOUT = 0.2;
 const CHAIN_CD_TIMING = [
   { n: 3, weight: 0.05 },
-  { n: 2, weight: 0.15 },
-  { n: 1, weight: 0.30 },
-  { n: 0, weight: 0.50 },
+  { n: 2, weight: 0.10 },
+  { n: 1, weight: 0.25 },
+  { n: 0, weight: 0.60 },
 ];
 
 function rollChainCountdownTiming() {
