@@ -596,7 +596,7 @@ function showChainJudge(count, success, onReveal) {
 const CHAIN_CD_STEP_MS = 667;
 const CHAIN_CD_HIT_DELAY_MS = 400;
 const CHAIN_CD_MISS_DELAY_MS = 600;
-const CHAIN_CD_EYE_DELAY_MS = 150;
+const CHAIN_CD_EYE_TIMINGS = ['start', 'to2', 'to1'];
 const CHAIN_CD_BLACKOUT_MS = 400;
 // 判定1回あたり(成功率50%込み)の出現率。どちらか一方しか出ない(排他)。
 const CHAIN_CD_EYE_PER_JUDGE = 0.18;
@@ -620,15 +620,19 @@ function rollChainCountdownTiming() {
 
 function playChainCountdown(count, success, onReveal) {
   const timing   = success ? rollChainCountdownTiming() : null;
-  // 成功時：👁️は36%。👁️が出なかった時のうち、1・0告知(85%)でブラックアウトを
-  // 抽選し、成功時全体で30%になるよう条件付き確率を逆算する。
+  // 👁️・ブラックアウトとも「1・0で告知する時(85%)」だけ抽選する
+  // (👁️は1が出る瞬間に光る場合があり、ブラックアウトは2の表示中に起きるため)。
+  // 成功時全体で👁️36%・ブラックアウト30%(判定1回あたり18%・15%)、排他。
   const pEyeGivenSuccess = CHAIN_CD_EYE_PER_JUDGE / P_RUSH_ADD_CHANCE;
   const pBlackoutGivenSuccess = CHAIN_CD_BLACKOUT_PER_JUDGE / P_RUSH_ADD_CHANCE;
-  // ブラックアウトは「2」の表示中に起きるため、1・0で告知する時のみ抽選
   const pLateTiming = CHAIN_CD_TIMING.filter((t) => t.n <= 1).reduce((a, t) => a + t.weight, 0);
-  const eye      = success && Math.random() < pEyeGivenSuccess;
-  const blackout = success && !eye && timing <= 1 &&
-    Math.random() < pBlackoutGivenSuccess / ((1 - pEyeGivenSuccess) * pLateTiming);
+  const late = success && timing <= 1;
+  const pEyeGivenLate = pEyeGivenSuccess / pLateTiming;
+  const eye      = late && Math.random() < pEyeGivenLate;
+  const blackout = late && !eye &&
+    Math.random() < pBlackoutGivenSuccess / ((1 - pEyeGivenLate) * pLateTiming);
+  // 👁️が光るタイミング：最初から／3→2の瞬間／2→1の瞬間 を各1/3
+  const eyeAt = eye ? CHAIN_CD_EYE_TIMINGS[Math.floor(Math.random() * CHAIN_CD_EYE_TIMINGS.length)] : null;
 
   showOverlay(popupHtml(`
     ${chainHeaderHtml(count)}
@@ -639,16 +643,16 @@ function playChainCountdown(count, success, onReveal) {
     </div>
   `));
 
-  if (eye) {
-    setTimeout(() => {
-      const el = document.getElementById('blood-eye');
-      if (el) el.classList.add('glow');
-    }, CHAIN_CD_EYE_DELAY_MS);
-  }
+  const glowEye = () => {
+    const eyeEl = document.getElementById('blood-eye');
+    if (eyeEl) eyeEl.classList.add('glow');
+  };
+  if (eyeAt === 'start') glowEye();
 
   const tick = (n) => {
     const el = document.getElementById('blood-cd');
     if (!el) return;
+    if ((eyeAt === 'to2' && n === 2) || (eyeAt === 'to1' && n === 1)) glowEye();
     el.textContent = n;
     el.classList.remove('pop');
     void el.offsetWidth;
